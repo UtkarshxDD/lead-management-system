@@ -45,11 +45,10 @@ const seedData = async () => {
     await Lead.deleteMany({});
     console.log('Cleared existing data');
 
-    // Create demo user
-    const hashedPassword = await bcrypt.hash('demo123', 12);
+    // Create demo user (password will be hashed by the User model pre-save hook)
     const demoUser = new User({
       email: 'demo@leadmanagement.com',
-      password: hashedPassword,
+      password: 'demo123', // This will be hashed automatically
       firstName: 'Demo',
       lastName: 'User'
     });
