@@ -22,41 +22,36 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration - more flexible for production
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'https://lead-management-system-orcin.vercel.app',
-  'https://lead-management-system-orcin.vercel.app/'
-];
-
+// CORS configuration - simplified and more robust
 app.use(cors({
   origin: function (origin, callback) {
+    console.log('CORS request from origin:', origin);
+    
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin) {
+      console.log('Allowing request with no origin');
       return callback(null, true);
     }
     
-    // Allow any Vercel preview URL for this project
+    // Allow localhost for development
+    if (origin.startsWith('http://localhost:')) {
+      console.log('Allowing localhost origin:', origin);
+      return callback(null, true);
+    }
+    
+    // Allow any Vercel URL for this project
     if (origin.includes('lead-management-system') && origin.includes('vercel.app')) {
+      console.log('Allowing Vercel origin:', origin);
       return callback(null, true);
     }
     
-    // Check if origin matches without trailing slash
-    const originWithoutSlash = origin.replace(/\/$/, '');
-    if (allowedOrigins.some(allowed => allowed.replace(/\/$/, '') === originWithoutSlash)) {
+    // Allow specific production URL
+    if (origin === 'https://lead-management-system-orcin.vercel.app') {
+      console.log('Allowing production origin:', origin);
       return callback(null, true);
     }
     
-    // Check if origin matches with trailing slash
-    const originWithSlash = origin.endsWith('/') ? origin : origin + '/';
-    if (allowedOrigins.some(allowed => allowed.replace(/\/$/, '') === originWithSlash.replace(/\/$/, ''))) {
-      return callback(null, true);
-    }
-    
+    console.log('CORS blocked origin:', origin);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
