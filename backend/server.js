@@ -12,6 +12,26 @@ const leadRoutes = require('./routes/leads');
 
 const app = express();
 
+// CORS configuration - allow all origins for now to fix the issue
+app.use((req, res, next) => {
+  console.log('CORS middleware - Origin:', req.headers.origin);
+  
+  // Set CORS headers
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS preflight request');
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
+
 // Security middleware
 app.use(helmet());
 
@@ -21,45 +41,6 @@ const limiter = rateLimit({
   max: 100 // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
-
-// CORS configuration - simplified and more robust
-app.use(cors({
-  origin: function (origin, callback) {
-    console.log('CORS request from origin:', origin);
-    
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) {
-      console.log('Allowing request with no origin');
-      return callback(null, true);
-    }
-    
-    // Allow localhost for development
-    if (origin.startsWith('http://localhost:')) {
-      console.log('Allowing localhost origin:', origin);
-      return callback(null, true);
-    }
-    
-    // Allow any Vercel URL for this project
-    if (origin.includes('lead-management-system') && origin.includes('vercel.app')) {
-      console.log('Allowing Vercel origin:', origin);
-      return callback(null, true);
-    }
-    
-    // Allow specific production URL
-    if (origin === 'https://lead-management-system-orcin.vercel.app') {
-      console.log('Allowing production origin:', origin);
-      return callback(null, true);
-    }
-    
-    console.log('CORS blocked origin:', origin);
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
