@@ -22,12 +22,43 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
+// CORS configuration - more flexible for production
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://lead-management-system-orcin.vercel.app',
+  'https://lead-management-system-orcin.vercel.app/'
+];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    
+    // Check if origin matches without trailing slash
+    const originWithoutSlash = origin.replace(/\/$/, '');
+    if (allowedOrigins.some(allowed => allowed.replace(/\/$/, '') === originWithoutSlash)) {
+      return callback(null, true);
+    }
+    
+    // Check if origin matches with trailing slash
+    const originWithSlash = origin.endsWith('/') ? origin : origin + '/';
+    if (allowedOrigins.some(allowed => allowed.replace(/\/$/, '') === originWithSlash.replace(/\/$/, ''))) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
 // Body parsing middleware
