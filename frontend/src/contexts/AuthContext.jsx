@@ -47,6 +47,10 @@ export const AuthProvider = ({ children }) => {
       console.log('Login successful:', response.data);
       setUser(response.data.user);
       
+      // Wait a moment for the cookie to be set
+      console.log('Waiting for cookie to be set...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Verify the authentication worked by checking the user
       console.log('Verifying authentication...');
       await checkAuth();
