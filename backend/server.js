@@ -12,6 +12,11 @@ const leadRoutes = require('./routes/leads');
 
 const app = express();
 
+// Trust proxy in production (for rate limiting to work properly)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - IP: ${req.ip}`);
