@@ -26,7 +26,10 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.getCurrentUser();
       setUser(response.data.user);
     } catch (error) {
-      console.log('User not authenticated');
+      // Only log if it's not a 401 error (which is expected when not authenticated)
+      if (error.response?.status !== 401) {
+        console.error('Auth check error:', error);
+      }
       setUser(null);
     } finally {
       setLoading(false);

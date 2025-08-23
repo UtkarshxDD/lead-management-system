@@ -28,7 +28,9 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    // Don't redirect on 401 errors - let components handle them
+    // Only redirect if it's not an auth check request
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/me')) {
       // Clear any stored auth state and redirect to login
       window.location.href = '/login';
     }
