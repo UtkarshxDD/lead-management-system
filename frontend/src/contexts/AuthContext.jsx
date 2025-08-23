@@ -23,9 +23,12 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
+      console.log('Checking authentication...');
       const response = await authAPI.getCurrentUser();
+      console.log('Auth check successful:', response.data);
       setUser(response.data.user);
     } catch (error) {
+      console.log('Auth check failed:', error.response?.status, error.response?.data);
       // Only log if it's not a 401 error (which is expected when not authenticated)
       if (error.response?.status !== 401) {
         console.error('Auth check error:', error);
@@ -39,10 +42,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       setError(null);
+      console.log('Attempting login...');
       const response = await authAPI.login(credentials);
+      console.log('Login successful:', response.data);
       setUser(response.data.user);
+      
+      // Verify the authentication worked by checking the user
+      console.log('Verifying authentication...');
+      await checkAuth();
+      
       return { success: true };
     } catch (error) {
+      console.log('Login failed:', error.response?.status, error.response?.data);
       const errorMessage = error.response?.data?.message || 'Login failed';
       setError(errorMessage);
       return { success: false, error: errorMessage };
