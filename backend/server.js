@@ -27,7 +27,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://lead-management-system-orcin.vercel.app',
-  'https://lead-management-system-orcin.vercel.app/'
+  'https://lead-management-system-orcin.vercel.app/',
+  'https://lead-management-sys-git-e11197-utkarsh-singhs-projects-e5b9c656.vercel.app'
 ];
 
 app.use(cors({
