@@ -5,11 +5,13 @@ const auth = async (req, res, next) => {
   try {
     console.log('Auth middleware - Cookies:', req.cookies);
     console.log('Auth middleware - Origin:', req.headers.origin);
+    console.log('Auth middleware - User-Agent:', req.headers['user-agent']);
     
     const token = req.cookies.token;
 
     if (!token) {
       console.log('Auth middleware - No token found in cookies');
+      console.log('Auth middleware - All cookies:', Object.keys(req.cookies));
       return res.status(401).json({ 
         message: 'Access denied. No token provided.' 
       });
