@@ -18,21 +18,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS configuration - more aggressive approach
+// CORS configuration - simplified
 app.use((req, res, next) => {
-  console.log('CORS middleware - Origin:', req.headers.origin);
-  console.log('CORS middleware - Method:', req.method);
-  
-  // Set CORS headers - more comprehensive
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
   
-  // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    console.log('Handling OPTIONS preflight request');
     res.status(200).end();
     return;
   }
