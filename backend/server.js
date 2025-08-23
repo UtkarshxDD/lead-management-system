@@ -27,8 +27,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://lead-management-system-orcin.vercel.app',
-  'https://lead-management-system-orcin.vercel.app/',
-  'https://lead-management-sys-git-e11197-utkarsh-singhs-projects-e5b9c656.vercel.app'
+  'https://lead-management-system-orcin.vercel.app/'
 ];
 
 app.use(cors({
@@ -38,6 +37,11 @@ app.use(cors({
     
     // Check if origin is in allowed list
     if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    
+    // Allow any Vercel preview URL for this project
+    if (origin.includes('lead-management-system') && origin.includes('vercel.app')) {
       return callback(null, true);
     }
     
