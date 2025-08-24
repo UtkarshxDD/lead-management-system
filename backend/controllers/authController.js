@@ -103,7 +103,16 @@ const login = async (req, res) => {
 
 // Logout user
 const logout = (req, res) => {
-  res.clearCookie('token');
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT;
+  
+  // Clear cookie with the same options used when setting it
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    path: '/'
+  });
+  
   res.json({ message: 'Logged out successfully' });
 };
 
