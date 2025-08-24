@@ -130,12 +130,36 @@ app.get('/api/cors-test', (req, res) => {
   res.json({ 
     status: 'CORS test successful',
     origin: req.headers.origin,
+    cookies: req.cookies,
     corsHeaders: {
       'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin'),
       'Access-Control-Allow-Methods': res.getHeader('Access-Control-Allow-Methods'),
       'Access-Control-Allow-Headers': res.getHeader('Access-Control-Allow-Headers'),
       'Access-Control-Allow-Credentials': res.getHeader('Access-Control-Allow-Credentials')
     }
+  });
+});
+
+// Cookie test endpoint
+app.get('/api/cookie-test', (req, res) => {
+  console.log('Cookie test endpoint called');
+  console.log('All cookies:', req.cookies);
+  console.log('Cookie header:', req.headers.cookie);
+  
+  // Set a test cookie
+  res.cookie('test-cookie', 'test-value', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 60 * 1000, // 1 minute
+    path: '/'
+  });
+  
+  res.json({ 
+    status: 'Cookie test',
+    receivedCookies: req.cookies,
+    cookieHeader: req.headers.cookie,
+    setCookieHeader: res.getHeader('Set-Cookie')
   });
 });
 

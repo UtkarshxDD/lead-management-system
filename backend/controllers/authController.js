@@ -89,14 +89,25 @@ const login = async (req, res) => {
       path: '/', // Ensure cookie is available for all paths
     };
     
-    // Add domain for production if needed (usually not required for cross-subdomain)
+    // For cross-site cookies in production, we need to be more explicit
     if (isProduction) {
       // Don't set domain - let browser handle it automatically
+      // This allows the cookie to be sent to any subdomain of onrender.com
       // cookieOptions.domain = '.onrender.com'; // Only if needed
+      
+      // Ensure sameSite is 'none' for cross-site requests
+      cookieOptions.sameSite = 'none';
+      
+      // Ensure secure is true for sameSite: 'none'
+      cookieOptions.secure = true;
     }
     
     console.log('Setting cookie with options:', cookieOptions);
+    console.log('Token being set:', token.substring(0, 20) + '...');
     res.cookie('token', token, cookieOptions);
+    
+    // Log the Set-Cookie header that was sent
+    console.log('Set-Cookie header:', res.getHeader('Set-Cookie'));
 
     res.json({
       message: 'Login successful',
@@ -124,6 +135,12 @@ const logout = (req, res) => {
     sameSite: isProduction ? 'none' : 'lax',
     path: '/'
   };
+  
+  // Ensure sameSite and secure are properly set for production
+  if (isProduction) {
+    cookieOptions.sameSite = 'none';
+    cookieOptions.secure = true;
+  }
   
   console.log('Clearing cookie with options:', cookieOptions);
   res.clearCookie('token', cookieOptions);

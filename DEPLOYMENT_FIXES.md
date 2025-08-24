@@ -18,7 +18,9 @@
 
 ### For Render (Backend)
 
-1. **Update Environment Variables** in your Render dashboard:
+**Option 1: Deploy from Root Directory (Recommended)**
+1. Use the `render.yaml` file in the root directory
+2. **Update Environment Variables** in your Render dashboard:
    ```
    NODE_ENV=production
    MONGODB_URI=your_mongodb_uri
@@ -26,6 +28,11 @@
    CORS_ORIGIN=https://lead-management-system-orcin.vercel.app
    PORT=10000
    ```
+
+**Option 2: Deploy from Backend Directory**
+1. Navigate to the `backend` folder in your Render dashboard
+2. Use the `render.yaml` file in the `backend` directory
+3. Set the same environment variables as above
 
 2. **Redeploy** your backend service on Render after updating environment variables.
 
@@ -103,11 +110,12 @@ Make sure to update the `VITE_API_URL` in `vercel.json` with your actual Render 
 
 ## Updated Files
 
-1. `render.yaml` - Added CORS_ORIGIN environment variable
-2. `frontend/vercel.json` - Added VITE_API_URL environment variable
-3. `backend/server.js` - Improved CORS handling
-4. `backend/controllers/authController.js` - Enhanced cookie configuration
-5. `frontend/src/services/api.js` - Better error handling and logging
+1. `render.yaml` - Fixed deployment configuration with proper rootDir setting
+2. `backend/render.yaml` - Alternative deployment configuration for backend-only deployment
+3. `frontend/vercel.json` - Added VITE_API_URL environment variable
+4. `backend/server.js` - Improved CORS handling
+5. `backend/controllers/authController.js` - Enhanced cookie configuration
+6. `frontend/src/services/api.js` - Better error handling and logging
 
 ## Next Steps
 

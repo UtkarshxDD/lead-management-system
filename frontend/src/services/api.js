@@ -10,6 +10,9 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Origin': window.location.origin, // Explicitly set origin header
   },
+  // Ensure cookies are sent with requests
+  xsrfCookieName: 'token',
+  xsrfHeaderName: 'X-CSRF-TOKEN',
 });
 
 // Request interceptor for debugging
