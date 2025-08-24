@@ -92,8 +92,8 @@ const login = async (req, res) => {
     // For cross-site cookies in production, we need to be more explicit
     if (isProduction) {
       // Don't set domain - let browser handle it automatically
-      // This allows the cookie to be sent to any subdomain of onrender.com
-      // cookieOptions.domain = '.onrender.com'; // Only if needed
+      // This allows the cookie to be sent to the exact domain
+      // cookieOptions.domain = '.onrender.com';
       
       // Ensure sameSite is 'none' for cross-site requests
       cookieOptions.sameSite = 'none';
@@ -140,6 +140,8 @@ const logout = (req, res) => {
   if (isProduction) {
     cookieOptions.sameSite = 'none';
     cookieOptions.secure = true;
+    // Don't set domain for logout
+    // cookieOptions.domain = '.onrender.com';
   }
   
   console.log('Clearing cookie with options:', cookieOptions);
