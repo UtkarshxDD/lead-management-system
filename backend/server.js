@@ -29,7 +29,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:4173',
   process.env.CORS_ORIGIN, // Your deployed frontend URL
-  'https://lead-management-system-orcin.vercel.app' // Your actual deployed frontend
+  'https://lead-management-system-orcin.vercel.app', // Your actual deployed frontend
+  'https://kk-leadmanagement.vercel.app' // Alternative deployment URL
 ].filter(Boolean);
 
 // Log CORS configuration for debugging
@@ -41,32 +42,36 @@ app.use((req, res, next) => {
   const origin = req.headers.origin || req.headers.referer?.split('/').slice(0, 3).join('/');
   
   console.log(`🌐 Request from origin: ${origin}`);
-  console.log(`📋 All headers:`, JSON.stringify(req.headers, null, 2));
+  console.log(`📋 User-Agent:`, req.headers['user-agent']);
   
-  // Check if origin is allowed - be more permissive for undefined origins in production
+  // Check if origin is allowed - be more permissive for production
   const isAllowed = 
     !origin || 
     allowedOrigins.includes(origin) || 
     (process.env.NODE_ENV === 'production' && origin?.includes('vercel.app')) ||
+    (process.env.NODE_ENV === 'production' && origin?.includes('onrender.com')) ||
     (process.env.NODE_ENV === 'production' && !origin); // Allow undefined origin in production
   
   if (isAllowed) {
-    // For undefined origin, use the CORS_ORIGIN env var or allow all
-    const allowOrigin = origin || process.env.CORS_ORIGIN || '*';
+    // For specific origin, use it; for undefined origin, use the CORS_ORIGIN env var
+    const allowOrigin = origin || process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? 'https://lead-management-system-orcin.vercel.app' : '*');
     res.setHeader('Access-Control-Allow-Origin', allowOrigin);
     console.log(`✅ CORS allowed for origin: ${origin} (set to: ${allowOrigin})`);
   } else {
     console.log(`❌ CORS blocked for origin: ${origin}`);
+    // Still allow the request but set restrictive CORS
+    res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'https://lead-management-system-orcin.vercel.app');
   }
   
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie, Cache-Control, Pragma');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Expose-Headers', 'Set-Cookie');
+  res.setHeader('Vary', 'Origin');
   
   if (req.method === 'OPTIONS') {
     console.log(`🔄 OPTIONS request handled for: ${req.path}`);
-    res.status(200).end();
+    res.status(204).end();
     return;
   }
   

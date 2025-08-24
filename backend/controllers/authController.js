@@ -79,12 +79,24 @@ const login = async (req, res) => {
 
     // Set cookie
     const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT;
-    res.cookie('token', token, {
+    
+    // Cookie configuration for cross-site compatibility
+    const cookieOptions = {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+      secure: isProduction, // Only secure in production (requires HTTPS)
+      sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site in production
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/', // Ensure cookie is available for all paths
+    };
+    
+    // Add domain for production if needed (usually not required for cross-subdomain)
+    if (isProduction) {
+      // Don't set domain - let browser handle it automatically
+      // cookieOptions.domain = '.onrender.com'; // Only if needed
+    }
+    
+    console.log('Setting cookie with options:', cookieOptions);
+    res.cookie('token', token, cookieOptions);
 
     res.json({
       message: 'Login successful',
@@ -106,12 +118,15 @@ const logout = (req, res) => {
   const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT;
   
   // Clear cookie with the same options used when setting it
-  res.clearCookie('token', {
+  const cookieOptions = {
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
     path: '/'
-  });
+  };
+  
+  console.log('Clearing cookie with options:', cookieOptions);
+  res.clearCookie('token', cookieOptions);
   
   res.json({ message: 'Logged out successfully' });
 };

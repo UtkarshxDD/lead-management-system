@@ -26,15 +26,32 @@ api.interceptors.request.use(
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => {
+    console.log(`API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
     return response;
   },
-  (error) => {
-    // Don't redirect on 401 errors - let components handle them
-    // Only redirect if it's not an auth check request
+  async (error) => {
+    console.error('API Error:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url,
+      method: error.config?.method,
+      message: error.message,
+      data: error.response?.data
+    });
+
+    // Handle network errors
+    if (!error.response) {
+      console.error('Network error - no response received');
+      // Could add retry logic here for network errors
+    }
+
+    // Handle 401 errors - only redirect for non-auth-check requests
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/me')) {
+      console.log('Unauthorized access - redirecting to login');
       // Clear any stored auth state and redirect to login
       window.location.href = '/login';
     }
+
     return Promise.reject(error);
   }
 );
