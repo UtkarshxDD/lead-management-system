@@ -38,17 +38,23 @@ console.log('Allowed Origins:', allowedOrigins);
 console.log('CORS_ORIGIN env var:', process.env.CORS_ORIGIN);
 
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
+  const origin = req.headers.origin || req.headers.referer?.split('/').slice(0, 3).join('/');
   
   console.log(`🌐 Request from origin: ${origin}`);
+  console.log(`📋 All headers:`, JSON.stringify(req.headers, null, 2));
   
-  // Check if origin is allowed
-  const isAllowed = !origin || allowedOrigins.includes(origin) || 
-    (process.env.NODE_ENV === 'production' && origin?.includes('vercel.app'));
+  // Check if origin is allowed - be more permissive for undefined origins in production
+  const isAllowed = 
+    !origin || 
+    allowedOrigins.includes(origin) || 
+    (process.env.NODE_ENV === 'production' && origin?.includes('vercel.app')) ||
+    (process.env.NODE_ENV === 'production' && !origin); // Allow undefined origin in production
   
   if (isAllowed) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-    console.log(`✅ CORS allowed for origin: ${origin}`);
+    // For undefined origin, use the CORS_ORIGIN env var or allow all
+    const allowOrigin = origin || process.env.CORS_ORIGIN || '*';
+    res.setHeader('Access-Control-Allow-Origin', allowOrigin);
+    console.log(`✅ CORS allowed for origin: ${origin} (set to: ${allowOrigin})`);
   } else {
     console.log(`❌ CORS blocked for origin: ${origin}`);
   }

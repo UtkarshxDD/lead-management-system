@@ -8,6 +8,7 @@ const api = axios.create({
   withCredentials: true, // Important for httpOnly cookies
   headers: {
     'Content-Type': 'application/json',
+    'Origin': window.location.origin, // Explicitly set origin header
   },
 });
 
