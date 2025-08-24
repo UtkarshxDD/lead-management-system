@@ -26,6 +26,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.getCurrentUser();
       setUser(response.data.user);
     } catch (error) {
+      // Clear invalid token from localStorage
+      localStorage.removeItem('authToken');
       setUser(null);
     } finally {
       setLoading(false);
@@ -36,6 +38,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const response = await authAPI.login(credentials);
+      
+      // Store token in localStorage for cross-device compatibility
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        console.log('Token stored in localStorage');
+      }
+      
       setUser(response.data.user);
       return { success: true };
     } catch (error) {
@@ -63,6 +72,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      // Clear token from localStorage
+      localStorage.removeItem('authToken');
       setUser(null);
     }
   };

@@ -15,10 +15,18 @@ const api = axios.create({
   xsrfHeaderName: 'X-CSRF-TOKEN',
 });
 
-// Request interceptor for debugging
+// Request interceptor for debugging and token handling
 api.interceptors.request.use(
   (config) => {
     console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    
+    // Add token from localStorage to Authorization header
+    const token = localStorage.getItem('authToken');
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log('Added token to Authorization header from localStorage');
+    }
+    
     return config;
   },
   (error) => {
@@ -50,8 +58,9 @@ api.interceptors.response.use(
 
     // Handle 401 errors - only redirect for non-auth-check requests
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/me')) {
-      console.log('Unauthorized access - redirecting to login');
-      // Clear any stored auth state and redirect to login
+      console.log('Unauthorized access - clearing token and redirecting to login');
+      // Clear token from localStorage and redirect to login
+      localStorage.removeItem('authToken');
       window.location.href = '/login';
     }
 

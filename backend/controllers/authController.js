@@ -77,7 +77,7 @@ const login = async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    // Set cookie
+    // Set cookie (for browsers that support it)
     const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT;
     
     // Cookie configuration for cross-site compatibility
@@ -109,8 +109,10 @@ const login = async (req, res) => {
     // Log the Set-Cookie header that was sent
     console.log('Set-Cookie header:', res.getHeader('Set-Cookie'));
 
+    // Return the token in the response for localStorage fallback
     res.json({
       message: 'Login successful',
+      token: token, // Include token for localStorage
       user: {
         id: user._id,
         email: user.email,
