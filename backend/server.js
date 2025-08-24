@@ -28,15 +28,29 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:4173',
-  process.env.CORS_ORIGIN // Your deployed frontend URL
+  process.env.CORS_ORIGIN, // Your deployed frontend URL
+  'https://lead-management-system-orcin.vercel.app' // Your actual deployed frontend
 ].filter(Boolean);
+
+// Log CORS configuration for debugging
+console.log('🔧 CORS Configuration:');
+console.log('Allowed Origins:', allowedOrigins);
+console.log('CORS_ORIGIN env var:', process.env.CORS_ORIGIN);
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   
-  // Allow requests from allowed origins or if no origin (same-origin requests)
-  if (!origin || allowedOrigins.includes(origin)) {
+  console.log(`🌐 Request from origin: ${origin}`);
+  
+  // Check if origin is allowed
+  const isAllowed = !origin || allowedOrigins.includes(origin) || 
+    (process.env.NODE_ENV === 'production' && origin?.includes('vercel.app'));
+  
+  if (isAllowed) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    console.log(`✅ CORS allowed for origin: ${origin}`);
+  } else {
+    console.log(`❌ CORS blocked for origin: ${origin}`);
   }
   
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -45,6 +59,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Expose-Headers', 'Set-Cookie');
   
   if (req.method === 'OPTIONS') {
+    console.log(`🔄 OPTIONS request handled for: ${req.path}`);
     res.status(200).end();
     return;
   }
